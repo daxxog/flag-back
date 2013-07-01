@@ -3,7 +3,7 @@
     "description" : "waitfor -- everything. cbpipe + async-waitfor",
     "homepage"    : "https://github.com/daxxog/flag-back",
     "main"        : "flag-back.js",
-    "version"     : "0.0.1",
+    "version"     : "0.0.2",
     "engines": { "node" : ">=0.7.0" },
     "maintainers": [{
         "name"  : "David Volm",

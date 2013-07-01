@@ -20,73 +20,41 @@
         root.FlagBack = factory();
   }
 }(this, function() {
-    var _wf = function() {
-        var wf = function() {
-            this.ran = false;
-            this.q = [];
-        };
-        
-        wf.prototype.builder = function() {
-            var that = this;
-            
-            return function(cb) {
-                if(typeof cb == 'function') {
-                    if(that.ran === true) {
-                        cb();
-                    } else {
-                        that.q.push(cb);
-                    }
-                } else {
-                    if(that.ran === false) {
-                        that.q.forEach(function(v, i, a) {
-                            v();
-                        });
-                        
-                        that.q = [];
-                    }
-                    
-                    that.ran = true;
-                }
-            };
-        };
-        
-        return (new wf()).builder();
-    },
-    waitFor = _wf,
-    CBpipe = function(cb, once) {
-        this.stack = [];
-        this.cbs = 0;
-        this.cb = cb;
-        this.once = (typeof once == 'boolean') ? once : false;
-        this.called = false;
-        this.wait = waitFor();
+    var FlagBack = function() {
     };
     
-    CBpipe.prototype.add = function() {
-        var that = this, 
-            i = that.stack.push(function() {
-                setTimeout(function() {
-                    delete that.stack[i];
-                    that.cbs--;
-                    
-                    if(that.cbs === 0 && (that.once ? (that.called === false) : !that.once)) {
-                        that.stack = [];
-                        that.called = true;
-                        that.cb();
-                    }
-                }, 1);
-            }) - 1;
+    FlagBack.prototype.flags = 0;
+    FlagBack.prototype.cbs = [];
+    
+    FlagBack.prototype.flag = function() {
+        var that = this;
         
-        that.cbs++;
+        this.flags++;
         
         return function() {
-            that.wait(that.stack[i]);
+            that.flags--;
+            
+            if(that.flags === 0) {
+                that.cbs.forEach(function(v, i, a) {
+                    if(typeof v == 'function') {
+                        v();
+                    }
+                });
+                
+                that.cbs = FlagBack.prototype.cbs; //reset
+            }
         };
     };
     
-    CBpipe.prototype.flow = function() {
-        this.wait();
+    FlagBack.prototype.back = function(cb) {
+        if(typeof cb == 'function') {
+            if(this.flags === 0) {
+                cb();
+            } else {
+                this.cbs.push(cb);
+            }
+        }
     };
     
-    return CBpipe;
+    return FlagBack;
 }));
